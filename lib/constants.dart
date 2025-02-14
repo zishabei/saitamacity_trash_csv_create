@@ -5,7 +5,7 @@ final dateRegExp = RegExp(r'\d{4}年([1-9]|1[0-2])月');
 const trashValueToIntMap = {
   "もえないごみ\n有害危険ごみ\n古紙類\n繊維": 26,
   "もえるごみ": 27,
-  "びん\nかん\nペットボトル\n食品包装プラスチック": 28
+  "びん\nかん\nペットボトル\n容器包装プラスチック": 28,
 };
 
 const sortedChomeList = [
