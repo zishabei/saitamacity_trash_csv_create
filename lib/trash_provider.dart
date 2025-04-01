@@ -20,11 +20,13 @@ class SelectExcel extends _$SelectExcel {
     state = const AsyncValue.loading();
     ref.invalidate(parseExcelProvider);
     ref.invalidate(buildTrashDataProvider);
-    state = AsyncData(await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-      allowMultiple: false,
-    ));
+    state = AsyncData(
+      await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx'],
+        allowMultiple: false,
+      ),
+    );
   }
 }
 
@@ -67,9 +69,9 @@ class BuildTrashData extends _$BuildTrashData {
       final chomeCell = CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0);
       final chome =
           (selectedExcel.tables[table]!.cell(chomeCell).value ?? "").toString();
-      Logger().d(table); //sheet Name
-      Logger().d(selectedExcel.tables[table]?.maxColumns);
-      Logger().d(selectedExcel.tables[table]?.maxRows);
+      Logger().d(
+        'sheet Name: $table \ncolumns:${selectedExcel.tables[table]?.maxColumns} \nrows:${selectedExcel.tables[table]?.maxRows}',
+      ); //sheet Name
       final sheetTempData = _generateSheetTrashData(selectedExcel, table);
       if (dateColumn.isEmpty) {
         dateColumn.addAll(_generateHeaderColumnData(selectedExcel, table));
@@ -78,10 +80,21 @@ class BuildTrashData extends _$BuildTrashData {
     }
     final List<List<dynamic>> trashCsvData = [];
     trashCsvData.addAll(dateColumn);
+    Logger().d('tempData: $tempData');
     for (var chome in sortedChomeList) {
-      tempData.forEach((key, value) {
+      tempData.forEach((areaChomes, value) {
+        // areaChomes　例:
+        //【大宮区】::東町１・２丁目、天沼町１・２丁目、★吉敷町１丁目、★吉敷町２丁目（線路より東）、吉敷町３・４丁目、北袋町１・２丁目、★下町１～３丁目、浅間町１・２丁目、★大門町１～３丁目、★仲町１～３丁目、★宮町１～５丁目
+        final areaName = areaChomes.split("::")[0];
+        final chomes =
+            areaChomes
+                .split("::")[1]
+                .split("、")
+                .map((e) => e.replaceAll("★", ""))
+                .toList();
         List<String> chomeDetail = chome.split(" ");
-        if (key.contains(chomeDetail[0]) && key.contains(chomeDetail[1])) {
+        if (areaName.contains(chomeDetail[0]) &&
+            chomes.contains(chomeDetail[1])) {
           final tempValue = List.from(value);
           tempValue.insert(0, chomeDetail[2]);
           trashCsvData.add(tempValue);
@@ -97,13 +110,17 @@ class BuildTrashData extends _$BuildTrashData {
       for (var cell in row) {
         final cellValue = cell?.value;
         if (numberRegExp.hasMatch(cellValue.toString())) {
-          final trashData = (excel.tables[table]!
-                      .cell(CellIndex.indexByColumnRow(
-                          columnIndex: cell!.columnIndex,
-                          rowIndex: cell.rowIndex + 1))
-                      .value ??
-                  "")
-              .toString();
+          final trashData =
+              (excel.tables[table]!
+                          .cell(
+                            CellIndex.indexByColumnRow(
+                              columnIndex: cell!.columnIndex,
+                              rowIndex: cell.rowIndex + 1,
+                            ),
+                          )
+                          .value ??
+                      "")
+                  .toString();
           sheetTempData.add(trashValueToIntMap[trashData] ?? "");
         }
       }
@@ -120,8 +137,10 @@ class BuildTrashData extends _$BuildTrashData {
         if (dateRegExp.hasMatch(cellValue.toString())) {
           final dateStr = cellValue.toString();
           DateTime trashDate = DateFormat('yyyy年MM月').parse(dateStr);
-          final days =
-              DateUtils.getDaysInMonth(trashDate.year, trashDate.month);
+          final days = DateUtils.getDaysInMonth(
+            trashDate.year,
+            trashDate.month,
+          );
           for (int day = 1; day <= days; day++) {
             DateTime date = DateTime(trashDate.year, trashDate.month, day);
             String formattedDate = DateFormat('yyyy/MM/dd').format(date);
