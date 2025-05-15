@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'dart:html' as html;
-import 'package:web/web.dart' as web;
 import 'package:intl/intl.dart';
 import 'package:saitama_trash_data_tool/trash_provider.dart';
 
