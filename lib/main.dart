@@ -102,7 +102,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               width: double.infinity,
               height: double.infinity,
               alignment: Alignment.center,
-              child: const Text("ごみExcel解析中..."),
+              child: Text(
+                "ごみExcel解析中...",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
             ),
         ],
       ),
